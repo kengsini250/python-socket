@@ -2,26 +2,45 @@ import socket
 import time
 import sys
 
-SERVER_IP = socket.gethostname()
-SERVER_PORT = 55555
+class Client:
+    def __init__(self):
+        self.__ip = ""
+        self.__port = -1
+    def __init__ (self,ip,port):
+        self.__ip = ip
+        self.__port = port
 
-print("Starting socket: TCP...")
-server_addr = (SERVER_IP, SERVER_PORT)
-socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __del__(self):
+        self.__client.close()
+        print("client end")
 
-print("Connecting to server @ %s:%d..." %(SERVER_IP, SERVER_PORT))
-socket_tcp.connect(server_addr)
+    def getIP(self):
+        return self.__ip
+    def getPORT(self):
+        return self.__port
 
-while True:
-    data = socket_tcp.recv(512)
-    data = data.decode('utf-8')
-    if 'DN' == data:
-        print("Close: %s" % data)
-    elif 'DY' == data:    
-        print("Open: %s" % data)
-    elif '' == data:
-        print("server disconnect")
-        break
-    else:
-        print(data)
-socket_tcp.close()
+    def clientInit(self):
+        print("Start client")
+        self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__host_addr = (self.getIP(),self.getPORT())
+        print("Connecting to server @ %s:%d..." %(self.getIP(), self.getPORT()))
+        self.__client.connect(self.__host_addr)
+
+    def clientStart(self):
+        while True:
+            self.__data = self.__client.recv(512)
+            self.__data = self.__data.decode('utf-8')
+            if 'DN' == self.__data:
+                print("Close: %s" % self.__data)
+            elif 'DY' == self.__data:    
+                print("Open: %s" % self.__data)
+            elif '' == self.__data:
+                print("server disconnect")
+                break
+            else:
+                print(self.__data)
+
+ip = socket.gethostname()
+client = Client(ip,55555)
+client.clientInit()
+client.clientStart()
